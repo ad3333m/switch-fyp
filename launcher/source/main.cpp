@@ -24,22 +24,32 @@ static void printCentered(PrintConsole* console, const char* msg) {
     consoleUpdate(console);
 }
 
+// Blocks until the user presses + (or the applet is asked to quit), showing
+// the given message. Used for error screens where there's nothing else to do.
+static void waitForExit(PrintConsole* console, PadState* pad, const char* msg) {
+    printCentered(console, msg);
+    printf("  Press + to exit.\n");
+    consoleUpdate(console);
+    while (appletMainLoop()) {
+        padUpdate(pad);
+        u64 kDown = padGetButtonsDown(pad);
+        if (kDown & HidNpadButton_Plus) break;
+        consoleUpdate(console);
+    }
+}
+
 int main(int argc, char* argv[]) {
     PrintConsole* console = consoleInit(NULL);
+
+    PadState pad;
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    padInitializeDefault(&pad);
 
     printCentered(console, "Checking network connection...");
 
     Result rc = nifmInitialize(NifmServiceType_User);
     if (R_FAILED(rc)) {
-        printCentered(console, "Failed to initialize network service (nifm).");
-        printf("  Press + to exit.\n");
-        consoleUpdate(console);
-        while (appletMainLoop()) {
-            hidScanInput();
-            u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            if (kDown & KEY_PLUS) break;
-            consoleUpdate(console);
-        }
+        waitForExit(console, &pad, "Failed to initialize network service (nifm).");
         consoleExit(NULL);
         return 1;
     }
@@ -52,16 +62,7 @@ int main(int argc, char* argv[]) {
     bool connected = R_SUCCEEDED(rc) && connStatus == NifmInternetConnectionStatus_Connected;
 
     if (!connected) {
-        printCentered(console, "No internet connection.");
-        printf("  Connect to Wi-Fi in System Settings, then relaunch.\n\n");
-        printf("  Press + to exit.\n");
-        consoleUpdate(console);
-        while (appletMainLoop()) {
-            hidScanInput();
-            u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            if (kDown & KEY_PLUS) break;
-            consoleUpdate(console);
-        }
+        waitForExit(console, &pad, "No internet connection.\n  Connect to Wi-Fi in System Settings, then relaunch.");
         nifmExit();
         consoleExit(NULL);
         return 1;
@@ -86,15 +87,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (R_FAILED(rc)) {
-        printCentered(console, "Failed to open the Web Applet.");
-        printf("  Press + to exit.\n");
-        consoleUpdate(console);
-        while (appletMainLoop()) {
-            hidScanInput();
-            u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            if (kDown & KEY_PLUS) break;
-            consoleUpdate(console);
-        }
+        waitForExit(console, &pad, "Failed to open the Web Applet.");
     }
 
     nifmExit();
