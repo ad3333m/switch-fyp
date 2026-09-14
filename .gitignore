@@ -4,3 +4,9 @@ launcher/*.nro
 launcher/*.nacp
 launcher/*.pfs0
 launcher/*.nso
+
+stremio-atv/StremioATV.xcodeproj/
+stremio-atv/Generated/
+stremio-atv/build/
+stremio-atv/.build/
+stremio-atv/DerivedData/

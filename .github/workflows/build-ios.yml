@@ -1,0 +1,52 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "stremio-atv/**"
+      - ".github/workflows/build-ios.yml"
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: stremio-atv
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned archive
+        run: |
+          xcodebuild archive \
+            -project StremioATV.xcodeproj \
+            -scheme StremioATV \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/StremioATV.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package unsigned .ipa
+        run: |
+          mkdir -p build/Payload
+          cp -r build/StremioATV.xcarchive/Products/Applications/StremioATV.app build/Payload/
+          cd build
+          zip -r StremioATV.ipa Payload
+          cd ..
+
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StremioATV-ipa
+          path: stremio-atv/build/StremioATV.ipa
+          if-no-files-found: error
