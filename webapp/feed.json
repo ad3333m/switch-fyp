@@ -1,0 +1,138 @@
+[
+  {
+    "id": "p1",
+    "user": "bloom.diaries",
+    "avatarColor": "#fe2c55",
+    "verified": true,
+    "caption": "watch her wake up 🌼✨ #timelapse #flowers #nature",
+    "sound": "original sound - bloom.diaries",
+    "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "likes": 128400,
+    "comments": 3210,
+    "favourites": 9820,
+    "shares": 1540,
+    "commentList": [
+      {"user": "mossy_moth", "text": "the way it just unfolds 😭"},
+      {"user": "ferny.fern", "text": "need this on loop forever"},
+      {"user": "clover_club", "text": "underrated genre of video tbh"}
+    ]
+  },
+  {
+    "id": "p2",
+    "user": "shortfilm.sundays",
+    "avatarColor": "#25f4ee",
+    "verified": false,
+    "caption": "made this in one weekend 🎬 #shortfilm #indiefilm #friday",
+    "sound": "original audio - shortfilm.sundays",
+    "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4",
+    "likes": 84200,
+    "comments": 1420,
+    "favourites": 5210,
+    "shares": 980,
+    "commentList": [
+      {"user": "gearhead99", "text": "the pacing is so good for a weekend project"},
+      {"user": "no_sleep_studios", "text": "watched this 3 times in a row"}
+    ]
+  },
+  {
+    "id": "p3",
+    "user": "bunny.bakes",
+    "avatarColor": "#fe2c55",
+    "verified": true,
+    "caption": "big buck's revenge 🐰🍃 #forest #shortfilm #animation",
+    "sound": "original sound - bunny.bakes",
+    "video": "https://media.w3.org/2010/05/bunny/trailer.mp4",
+    "likes": 342000,
+    "comments": 8930,
+    "favourites": 21400,
+    "shares": 6600,
+    "commentList": [
+      {"user": "flame_watch", "text": "still the goat of open source animation"},
+      {"user": "kestrel.k", "text": "camera work is unreal"},
+      {"user": "petra.codes", "text": "grew up watching this on repeat"}
+    ]
+  },
+  {
+    "id": "p4",
+    "user": "sintel.saga",
+    "avatarColor": "#25f4ee",
+    "verified": true,
+    "caption": "she never stopped looking for him 🐉💙 #sintel #animation #fantasy",
+    "sound": "orchestral theme - sintel.saga",
+    "video": "https://media.w3.org/2010/05/sintel/trailer.mp4",
+    "likes": 405000,
+    "comments": 15200,
+    "favourites": 38900,
+    "shares": 9100,
+    "commentList": [
+      {"user": "dragon.core", "text": "sobbed. absolutely sobbed."},
+      {"user": "windrider", "text": "still the best short film of all time"},
+      {"user": "ashfall", "text": "the score is everything"}
+    ]
+  },
+  {
+    "id": "p5",
+    "user": "dreamscape.ele",
+    "avatarColor": "#fe2c55",
+    "verified": false,
+    "caption": "the machines are dreaming again ⚙️ #scifi #animation #dream",
+    "sound": "eerie synth - dreamscape.ele",
+    "video": "https://media.w3.org/2010/05/video/movie_300.mp4",
+    "likes": 219000,
+    "comments": 4410,
+    "favourites": 12300,
+    "shares": 2870,
+    "commentList": [
+      {"user": "sunny.days", "text": "art direction is insane"},
+      {"user": "porch.swing", "text": "this whole world is so weird and I love it"}
+    ]
+  },
+  {
+    "id": "p6",
+    "user": "petal.pov",
+    "avatarColor": "#25f4ee",
+    "verified": false,
+    "caption": "pov: you're a bee for 5 seconds 🐝 #macro #nature #satisfying",
+    "sound": "soft piano - petal.pov",
+    "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "likes": 51200,
+    "comments": 990,
+    "favourites": 3100,
+    "shares": 420,
+    "commentList": [
+      {"user": "runwithit", "text": "so calming somehow"}
+    ]
+  },
+  {
+    "id": "p7",
+    "user": "weekend.reels",
+    "avatarColor": "#fe2c55",
+    "verified": false,
+    "caption": "another one done at 2am 🌙 #filmmaking #process #friday",
+    "sound": "lofi beat - weekend.reels",
+    "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4",
+    "likes": 98700,
+    "comments": 2110,
+    "favourites": 4400,
+    "shares": 760,
+    "commentList": [
+      {"user": "popcorn.ready", "text": "the dedication is unmatched"}
+    ]
+  },
+  {
+    "id": "p8",
+    "user": "openmovie.archive",
+    "avatarColor": "#25f4ee",
+    "verified": true,
+    "caption": "throwback to the trailer that started it all 🔥 #bigbuckbunny #openmovie",
+    "sound": "original score - openmovie.archive",
+    "video": "https://media.w3.org/2010/05/bunny/trailer.mp4",
+    "likes": 176500,
+    "comments": 3020,
+    "favourites": 8900,
+    "shares": 1980,
+    "commentList": [
+      {"user": "torque.talk", "text": "day one fan right here"}
+    ]
+  }
+]

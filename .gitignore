@@ -1,0 +1,6 @@
+launcher/build/
+launcher/*.elf
+launcher/*.nro
+launcher/*.nacp
+launcher/*.pfs0
+launcher/*.nso

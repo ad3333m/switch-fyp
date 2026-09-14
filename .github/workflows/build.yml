@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy-webapp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: webapp
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+
+  build-nro:
+    needs: deploy-webapp
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ForYou.nro
+        shell: bash
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITA64=$DEVKITPRO/devkitA64
+          export PATH=$DEVKITA64/bin:$DEVKITPRO/tools/bin:$PATH
+          cd launcher
+          make FORYOU_URL="${{ needs.deploy-webapp.outputs.page_url }}"
+
+      - name: Upload .nro artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ForYou-nro
+          path: launcher/ForYou.nro
+          if-no-files-found: error
