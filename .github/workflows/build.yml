@@ -21,10 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Assemble Pages root
+        run: |
+          mkdir -p pages-root
+          cp -r webapp/. pages-root/
+          mkdir -p pages-root/stremio-addon
+          cp -r stremio-addon/. pages-root/stremio-addon/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: webapp
+          path: pages-root
 
       - name: Deploy to GitHub Pages
         id: deployment

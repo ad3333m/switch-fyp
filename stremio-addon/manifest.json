@@ -1,0 +1,12 @@
+{
+  "id": "org.foryou.publicdomain",
+  "name": "Public Domain Classics",
+  "version": "1.0.0",
+  "description": "A small curated catalog of classic feature films confirmed to be in the US public domain, streamed directly from the Internet Archive.",
+  "types": ["movie"],
+  "catalogs": [
+    { "type": "movie", "id": "public_domain", "name": "Public Domain Classics" }
+  ],
+  "resources": ["catalog", "meta", "stream"],
+  "idPrefixes": ["pd"]
+}

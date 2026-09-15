@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var addonManager: AddonManager
     @State private var selection: SelectedItem?
+    @State private var heroPlayable: PlayableURL?
+    @State private var heroError: String?
 
     private struct Shelf: Identifiable {
         let id: String
@@ -25,27 +27,76 @@ struct HomeView: View {
         }
     }
 
+    @State private var heroItems: [SelectedItem] = []
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 if shelves.isEmpty {
                     emptyState
                 } else {
-                    LazyVStack(alignment: .leading, spacing: 28) {
-                        ForEach(shelves) { shelf in
-                            ShelfRowView(shelfBase: shelf.base, catalog: shelf.catalog, title: shelf.title) { item in
-                                selection = item
+                    VStack(alignment: .leading, spacing: 28) {
+                        if !heroItems.isEmpty {
+                            HeroBannerView(
+                                items: heroItems,
+                                onPlay: { playFirstStream(for: $0) },
+                                onInfo: { selection = $0 }
+                            )
+                        }
+
+                        LazyVStack(alignment: .leading, spacing: 28) {
+                            ForEach(shelves) { shelf in
+                                ShelfRowView(shelfBase: shelf.base, catalog: shelf.catalog, title: shelf.title) { item in
+                                    selection = item
+                                }
                             }
                         }
+                        .padding(.top, heroItems.isEmpty ? 12 : 0)
                     }
-                    .padding(.top)
                 }
             }
             .background(Color.black.ignoresSafeArea())
-            .navigationTitle("Watch Now")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Watch Now").font(.headline).foregroundColor(.white)
+                }
+            }
             .navigationDestination(item: $selection) { sel in
                 DetailView(base: sel.base, preview: sel.preview)
             }
+            .fullScreenCover(item: $heroPlayable) { p in
+                PlayerView(playable: p)
+            }
+            .alert("Can't play this title", isPresented: Binding(get: { heroError != nil }, set: { if !$0 { heroError = nil } })) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(heroError ?? "")
+            }
+            .task { await loadHero() }
+            .onChange(of: shelves.map(\.id)) { _ in Task { await loadHero() } }
+        }
+    }
+
+    private func loadHero() async {
+        guard let first = shelves.first else {
+            heroItems = []
+            return
+        }
+        let metas = (try? await StremioAPI.fetchCatalog(base: first.base, type: first.catalog.type, catalogId: first.catalog.id)) ?? []
+        heroItems = metas.prefix(5).map { SelectedItem(base: first.base, preview: $0) }
+    }
+
+    private func playFirstStream(for item: SelectedItem) {
+        Task {
+            let streams = (try? await StremioAPI.fetchStreams(base: item.base, type: item.preview.type, id: item.preview.id)) ?? []
+            guard let playableStream = streams.first(where: { $0.isPlayable }),
+                  let urlString = playableStream.url,
+                  let url = URL(string: urlString) else {
+                heroError = "No direct playable stream was found for this title from your installed addons."
+                return
+            }
+            heroPlayable = PlayableURL(url: url)
         }
     }
 

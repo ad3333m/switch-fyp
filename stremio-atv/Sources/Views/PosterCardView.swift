@@ -18,15 +18,16 @@ struct PosterCardView: View {
                         )
                 }
             }
-            .frame(width: 130, height: 195)
+            .frame(width: 150, height: 225)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .shadow(color: .black.opacity(0.5), radius: 6, y: 4)
+            .shadow(color: .black.opacity(0.5), radius: 8, y: 5)
 
             Text(item.name)
                 .font(.caption)
+                .fontWeight(.medium)
                 .foregroundColor(.white)
                 .lineLimit(1)
-                .frame(width: 130, alignment: .leading)
+                .frame(width: 150, alignment: .leading)
         }
     }
 }
