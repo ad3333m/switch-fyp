@@ -28,6 +28,9 @@ struct DetailView: View {
                 metaRow
                     .revealOnAppear(appeared, delay: 0.05)
 
+                playButton
+                    .revealOnAppear(appeared, delay: 0.08)
+
                 if !(extra?.genres.isEmpty ?? true) {
                     genrePills
                         .revealOnAppear(appeared, delay: 0.1)
@@ -71,7 +74,7 @@ struct DetailView: View {
                     Color.white.opacity(0.06)
                 }
             }
-            .frame(height: 360)
+            .frame(height: AdaptiveSize.detailHeaderHeight)
             .clipped()
 
             LinearGradient(
@@ -79,7 +82,7 @@ struct DetailView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 360)
+            .frame(height: AdaptiveSize.detailHeaderHeight)
 
             Text(preview.name)
                 .font(.system(size: 30, weight: .bold))
@@ -92,41 +95,72 @@ struct DetailView: View {
     // MARK: - Rating / age rating / runtime row
 
     private var metaRow: some View {
-        HStack(spacing: 10) {
-            if let rating = extra?.rating, rating > 0 {
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-                        .font(.caption)
-                    Text(String(format: "%.1f", rating))
-                        .font(.subheadline.bold())
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .glassPill()
-            }
-
-            if let certification = extra?.certification, !certification.isEmpty {
-                Text(certification)
-                    .font(.caption.bold())
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .glassPill(cornerRadius: 6)
-            }
-
-            if let minutes = extra?.runtimeMinutes, minutes > 0 {
-                Text(runtimeLabel(minutes))
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.85))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                if let rating = extra?.rating, rating > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.yellow)
+                            .font(.caption)
+                        Text(String(format: "%.1f", rating))
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white)
+                    }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .glassPill()
-            }
+                    .fixedSize()
+                }
 
-            Spacer()
+                if let certification = extra?.certification, !certification.isEmpty {
+                    Text(certification)
+                        .font(.caption.bold())
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .glassPill(cornerRadius: 6)
+                        .fixedSize()
+                }
+
+                if let minutes = extra?.runtimeMinutes, minutes > 0 {
+                    Text(runtimeLabel(minutes))
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.85))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .glassPill()
+                        .fixedSize()
+                }
+            }
         }
+    }
+
+    // MARK: - Play
+
+    private var playButton: some View {
+        let firstPlayable = sources.first(where: { $0.stream.isPlayable })
+
+        return Button {
+            if let firstPlayable, let urlString = firstPlayable.stream.url, let url = URL(string: urlString) {
+                playable = PlayableURL(url: url)
+            }
+        } label: {
+            HStack {
+                Spacer()
+                if loadingStreams {
+                    ProgressView().tint(.black)
+                } else {
+                    Image(systemName: "play.fill")
+                    Text(firstPlayable != nil ? "Play" : "No source available")
+                        .fontWeight(.semibold)
+                }
+                Spacer()
+            }
+            .padding(.vertical, 14)
+            .foregroundColor(.black)
+            .background(firstPlayable != nil ? Color.white : Color.white.opacity(0.35), in: Capsule())
+        }
+        .disabled(loadingStreams || firstPlayable == nil)
     }
 
     private func runtimeLabel(_ minutes: Int) -> String {

@@ -39,6 +39,27 @@ extension View {
     }
 }
 
+/// Screen-relative sizing so panels scale with the actual device instead of
+/// using pixel constants tuned for one screen size (e.g. an iPhone SE vs a
+/// Pro Max), clamped to a sensible range.
+enum AdaptiveSize {
+    static var screenHeight: CGFloat {
+        UIScreen.main.bounds.height
+    }
+
+    static var screenWidth: CGFloat {
+        UIScreen.main.bounds.width
+    }
+
+    static var heroHeight: CGFloat {
+        min(max(screenHeight * 0.46, 360), 520)
+    }
+
+    static var detailHeaderHeight: CGFloat {
+        min(max(screenHeight * 0.38, 260), 420)
+    }
+}
+
 /// The app's dark-but-not-flat backdrop: a soft charcoal gradient with a
 /// hint of the accent color bleeding in from the top, rather than pure
 /// black, so glass panels have something to actually refract.

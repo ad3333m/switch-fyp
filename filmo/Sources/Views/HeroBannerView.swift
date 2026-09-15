@@ -76,7 +76,7 @@ struct HeroBannerView: View {
                 }
             }
         }
-        .frame(height: 460)
+        .frame(height: AdaptiveSize.heroHeight)
         .onReceive(timer) { _ in
             guard !items.isEmpty else { return }
             index = (index + 1) % items.count

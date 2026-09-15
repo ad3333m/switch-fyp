@@ -8,5 +8,5 @@
     { "type": "movie", "id": "public_domain", "name": "Public Domain Classics" }
   ],
   "resources": ["catalog", "meta", "stream"],
-  "idPrefixes": ["pd"]
+  "idPrefixes": ["tt"]
 }
