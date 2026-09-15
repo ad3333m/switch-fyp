@@ -8,49 +8,52 @@ struct OnboardingView: View {
     @State private var sampleAdded = false
 
     var body: some View {
-        ZStack {
-            AppBackground()
+        GeometryReader { geo in
+            ZStack {
+                AppBackground()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Image(systemName: "play.tv.fill")
-                            .font(.system(size: 40))
+                            .font(.system(size: 34))
                             .foregroundColor(.white)
                         Text("Welcome to Filmo")
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
-                        Text("A movie and TV browser with an Apple TV-style look, built around the open Stremio addon protocol.")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.75))
-                    }
-                    .padding(.top, 20)
-
-                    infoRow(
-                        icon: "sparkles.tv",
-                        title: "Browse everything",
-                        body: "The Watch Now and Search tabs show trending, popular, and top-rated movies and TV shows by default - no setup needed."
-                    )
-
-                    infoRow(
-                        icon: "puzzlepiece.extension.fill",
-                        title: "Addons provide the sources",
-                        body: "Filmo doesn't host or stream anything itself. To actually play a title, add a Stremio addon - a service that resolves streams for titles - in the Addons tab, by pasting its manifest.json URL."
-                    )
-
-                    infoRow(
-                        icon: "play.circle.fill",
-                        title: "One tap to play",
-                        body: "Open any title and tap Play. Filmo checks every addon you've installed and plays the first direct link it finds - or shows you all of them under \"Available sources\"."
-                    )
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Don't have an addon yet?")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text("You can start with a small sample addon (public-domain classic films, streamed from the Internet Archive) just to see how it works, and add real addons later in the Addons tab.")
+                        Text("A movie and TV browser built around the open Stremio addon protocol.")
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.7))
+                    }
+
+                    Spacer(minLength: 12)
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        infoRow(
+                            icon: "sparkles.tv",
+                            title: "Browse everything",
+                            body: "Trending, popular, and top-rated movies and TV shows, by default."
+                        )
+                        infoRow(
+                            icon: "puzzlepiece.extension.fill",
+                            title: "Addons provide the sources",
+                            body: "Filmo doesn't host anything itself. Add a Stremio addon's manifest.json URL in the Addons tab to get playable sources."
+                        )
+                        infoRow(
+                            icon: "play.circle.fill",
+                            title: "One tap to play",
+                            body: "Tap Play - Filmo checks every addon you've installed and plays the first source it finds."
+                        )
+                    }
+
+                    Spacer(minLength: 12)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Don't have an addon yet?")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white)
+                        Text("Try a small sample (public-domain films from the Internet Archive) to see how it works.")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.65))
 
                         Button {
                             Task { await addSample() }
@@ -64,14 +67,16 @@ struct OnboardingView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, 10)
                             .foregroundColor(.white)
                             .glassCapsule()
                         }
                         .disabled(addingSample || sampleAdded)
                     }
-                    .padding(16)
+                    .padding(14)
                     .glassCard()
+
+                    Spacer(minLength: 12)
 
                     Button {
                         onFinish()
@@ -85,26 +90,29 @@ struct OnboardingView: View {
                         .foregroundColor(.black)
                         .background(Color.white, in: Capsule())
                     }
-                    .padding(.top, 8)
                 }
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.top, geo.safeAreaInsets.top + 16)
+                .padding(.bottom, geo.safeAreaInsets.bottom + 12)
+                .frame(width: geo.size.width, height: geo.size.height)
             }
         }
+        .ignoresSafeArea()
     }
 
     private func infoRow(icon: String, title: String, body: String) -> some View {
-        HStack(alignment: .top, spacing: 14) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(.title3)
                 .foregroundColor(.white)
-                .frame(width: 32)
-            VStack(alignment: .leading, spacing: 4) {
+                .frame(width: 26)
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.headline)
+                    .font(.subheadline.bold())
                     .foregroundColor(.white)
                 Text(body)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.65))
             }
         }
     }
