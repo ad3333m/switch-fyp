@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
     paths:
-      - "stremio-atv/**"
+      - "filmo/**"
       - ".github/workflows/build-ios.yml"
   workflow_dispatch:
 
@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-14
     defaults:
       run:
-        working-directory: stremio-atv
+        working-directory: filmo
     steps:
       - uses: actions/checkout@v4
 
@@ -35,11 +35,11 @@ jobs:
       - name: Build unsigned archive
         run: |
           xcodebuild archive \
-            -project StremioATV.xcodeproj \
-            -scheme StremioATV \
+            -project Filmo.xcodeproj \
+            -scheme Filmo \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath build/StremioATV.xcarchive \
+            -archivePath build/Filmo.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
@@ -48,14 +48,14 @@ jobs:
       - name: Package unsigned .ipa
         run: |
           mkdir -p build/Payload
-          cp -r build/StremioATV.xcarchive/Products/Applications/StremioATV.app build/Payload/
+          cp -r build/Filmo.xcarchive/Products/Applications/Filmo.app build/Payload/
           cd build
-          zip -r StremioATV.ipa Payload
+          zip -r Filmo.ipa Payload
           cd ..
 
       - name: Upload .ipa artifact
         uses: actions/upload-artifact@v4
         with:
-          name: StremioATV-ipa
-          path: stremio-atv/build/StremioATV.ipa
+          name: Filmo-ipa
+          path: filmo/build/Filmo.ipa
           if-no-files-found: error

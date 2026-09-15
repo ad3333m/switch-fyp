@@ -5,8 +5,8 @@ launcher/*.nacp
 launcher/*.pfs0
 launcher/*.nso
 
-stremio-atv/StremioATV.xcodeproj/
-stremio-atv/Generated/
-stremio-atv/build/
-stremio-atv/.build/
-stremio-atv/DerivedData/
+filmo/Filmo.xcodeproj/
+filmo/Generated/
+filmo/build/
+filmo/.build/
+filmo/DerivedData/

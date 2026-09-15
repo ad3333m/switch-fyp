@@ -1,4 +1,4 @@
-# Stremio ATV
+# Filmo
 
 An iOS app with an Apple TV-app-style layout (bottom tab bar, hero banner,
 horizontal shelves) that speaks the standard [Stremio addon
@@ -13,11 +13,14 @@ protocol](https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/resp
 - Tapping a title fetches its streams from your addon(s) and plays whatever
   direct HTTP(S) media URL the addon returns, using the standard iOS video
   player (`AVKit`).
+- A small default addon (public-domain films from the Internet Archive) is
+  installed automatically on first launch so there's real content out of the
+  box; you can remove it and add your own addons at any time.
 
 ## What it deliberately does not do
 
 This app has **no torrent/BitTorrent/magnet-link support of any kind**, and
-does not bundle, recommend, or pre-configure any specific addon. If an addon
+does not bundle, recommend, or pre-configure any piracy addon. If an addon
 returns a stream entry that isn't a direct `http(s)://` URL (e.g. an
 `infoHash`/magnet-only torrent stream), the app shows it as "unsupported" and
 will not play it. It's a generic protocol client for addons you choose and
@@ -42,7 +45,7 @@ Requires Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 (`brew install xcodegen`):
 
 ```bash
-cd stremio-atv
+cd filmo
 xcodegen generate
-open StremioATV.xcodeproj
+open Filmo.xcodeproj
 ```

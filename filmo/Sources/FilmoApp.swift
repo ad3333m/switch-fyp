@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct StremioATVApp: App {
+struct FilmoApp: App {
     @StateObject private var addonManager = AddonManager()
 
     var body: some Scene {
