@@ -13,5 +13,7 @@ struct RootTabView: View {
                 .tabItem { Label("Addons", systemImage: "puzzlepiece.extension") }
         }
         .tint(.white)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

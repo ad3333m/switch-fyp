@@ -29,6 +29,20 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      - name: Inject TMDb API key
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: |
+          mkdir -p Sources/Generated
+          cat > Sources/Generated/TMDbSecrets.swift <<SWIFT
+          // Injected at CI build time from the TMDB_API_KEY GitHub Actions
+          // secret. Never committed to source control - see
+          // .github/workflows/build-ios.yml.
+          enum TMDbSecrets {
+              static let apiKey = "${TMDB_API_KEY}"
+          }
+          SWIFT
+
       - name: Generate Xcode project
         run: xcodegen generate
 

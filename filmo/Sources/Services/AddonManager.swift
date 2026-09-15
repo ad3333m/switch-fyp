@@ -54,4 +54,41 @@ final class AddonManager: ObservableObject {
         let urls = addons.map { $0.manifestURL.absoluteString }
         UserDefaults.standard.set(urls, forKey: defaultsKey)
     }
+
+    /// One stream option, tagged with which installed addon it came from -
+    /// used to show "Available sources" grouped by addon.
+    struct SourceStream: Identifiable, Hashable {
+        let addonName: String
+        let stream: StreamItem
+        var id: String { addonName + "|" + stream.id }
+    }
+
+    /// Queries every installed addon's stream endpoint for the given
+    /// (type, id) - typically an IMDb id - concurrently, and returns every
+    /// result found, tagged by which addon it came from. This is how "every
+    /// addon" gets a chance to offer a source for a title, regardless of
+    /// which catalog (TMDb or an addon's own) the title was browsed from.
+    static func allStreams(addons: [Addon], type: String, id: String) async -> [SourceStream] {
+        await withTaskGroup(of: [SourceStream].self) { group in
+            for addon in addons {
+                group.addTask {
+                    let base = StremioAPI.base(from: addon.manifestURL)
+                    let streams = (try? await StremioAPI.fetchStreams(base: base, type: type, id: id)) ?? []
+                    return streams.map { SourceStream(addonName: addon.manifest.name, stream: $0) }
+                }
+            }
+            var results: [SourceStream] = []
+            for await batch in group {
+                results.append(contentsOf: batch)
+            }
+            return results
+        }
+    }
+
+    static func firstPlayableStream(addons: [Addon], type: String, id: String) async -> URL? {
+        let all = await allStreams(addons: addons, type: type, id: id)
+        guard let playable = all.first(where: { $0.stream.isPlayable }),
+              let urlString = playable.stream.url else { return nil }
+        return URL(string: urlString)
+    }
 }

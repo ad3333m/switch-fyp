@@ -53,11 +53,10 @@ struct HeroBannerView: View {
                             } label: {
                                 Label("Play", systemImage: "play.fill")
                                     .font(.headline)
-                                    .padding(.horizontal, 22)
-                                    .padding(.vertical, 10)
-                                    .background(Color.white)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
                                     .foregroundColor(.black)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                    .background(Color.white, in: Capsule())
                             }
 
                             Button {
@@ -65,11 +64,10 @@ struct HeroBannerView: View {
                             } label: {
                                 Label("Info", systemImage: "info.circle")
                                     .font(.headline)
-                                    .padding(.horizontal, 22)
-                                    .padding(.vertical, 10)
-                                    .background(Color.white.opacity(0.18))
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
                                     .foregroundColor(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                    .glassCapsule()
                             }
                         }
                     }

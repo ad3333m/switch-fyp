@@ -19,7 +19,11 @@ struct PosterCardView: View {
                 }
             }
             .frame(width: 150, height: 225)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            )
             .shadow(color: .black.opacity(0.5), radius: 8, y: 5)
 
             Text(item.name)

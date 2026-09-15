@@ -6,18 +6,18 @@ struct HomeView: View {
     @State private var heroPlayable: PlayableURL?
     @State private var heroError: String?
 
-    private struct Shelf: Identifiable {
+    private struct AddonShelf: Identifiable {
         let id: String
         let base: URL
         let catalog: CatalogDef
         let title: String
     }
 
-    private var shelves: [Shelf] {
-        addonManager.addons.flatMap { addon -> [Shelf] in
+    private var addonShelves: [AddonShelf] {
+        addonManager.addons.flatMap { addon -> [AddonShelf] in
             let base = StremioAPI.base(from: addon.manifestURL)
             return (addon.manifest.catalogs ?? []).map { catalog in
-                Shelf(
+                AddonShelf(
                     id: addon.id + catalog.type + catalog.id,
                     base: base,
                     catalog: catalog,
@@ -27,35 +27,53 @@ struct HomeView: View {
         }
     }
 
-    @State private var heroItems: [SelectedItem] = []
+    // TMDb-backed shelves populate the home screen by default (movies and
+    // series alike), independent of which addons are installed. Addons are
+    // only queried for streams when you open a title.
+    @State private var trending: [MetaPreview] = []
+    @State private var popularMovies: [MetaPreview] = []
+    @State private var popularSeries: [MetaPreview] = []
+    @State private var topRatedMovies: [MetaPreview] = []
+    @State private var topRatedSeries: [MetaPreview] = []
+    @State private var loadedTMDb = false
+
+    private var heroItems: [SelectedItem] {
+        trending.prefix(5).map { SelectedItem(preview: $0) }
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                if shelves.isEmpty {
-                    emptyState
-                } else {
-                    VStack(alignment: .leading, spacing: 28) {
-                        if !heroItems.isEmpty {
-                            HeroBannerView(
-                                items: heroItems,
-                                onPlay: { playFirstStream(for: $0) },
-                                onInfo: { selection = $0 }
-                            )
-                        }
+                VStack(alignment: .leading, spacing: 28) {
+                    if !heroItems.isEmpty {
+                        HeroBannerView(
+                            items: heroItems,
+                            onPlay: { playFirstStream(for: $0) },
+                            onInfo: { selection = $0 }
+                        )
+                    }
 
-                        LazyVStack(alignment: .leading, spacing: 28) {
-                            ForEach(shelves) { shelf in
-                                ShelfRowView(shelfBase: shelf.base, catalog: shelf.catalog, title: shelf.title) { item in
-                                    selection = item
-                                }
+                    LazyVStack(alignment: .leading, spacing: 28) {
+                        StaticShelfRowView(title: "Trending Now", items: trending) { selection = $0 }
+                        StaticShelfRowView(title: "Popular Movies", items: popularMovies) { selection = $0 }
+                        StaticShelfRowView(title: "Popular TV Shows", items: popularSeries) { selection = $0 }
+                        StaticShelfRowView(title: "Top Rated Movies", items: topRatedMovies) { selection = $0 }
+                        StaticShelfRowView(title: "Top Rated TV Shows", items: topRatedSeries) { selection = $0 }
+
+                        ForEach(addonShelves) { shelf in
+                            ShelfRowView(shelfBase: shelf.base, catalog: shelf.catalog, title: shelf.title) { item in
+                                selection = item
                             }
                         }
-                        .padding(.top, heroItems.isEmpty ? 12 : 0)
+                    }
+                    .padding(.top, heroItems.isEmpty ? 12 : 0)
+
+                    if !loadedTMDb || (trending.isEmpty && addonShelves.isEmpty) {
+                        emptyState
                     }
                 }
             }
-            .background(Color.black.ignoresSafeArea())
+            .background(AppBackground())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -63,7 +81,7 @@ struct HomeView: View {
                 }
             }
             .navigationDestination(item: $selection) { sel in
-                DetailView(base: sel.base, preview: sel.preview)
+                DetailView(preview: sel.preview)
             }
             .fullScreenCover(item: $heroPlayable) { p in
                 PlayerView(playable: p)
@@ -73,26 +91,32 @@ struct HomeView: View {
             } message: {
                 Text(heroError ?? "")
             }
-            .task { await loadHero() }
-            .onChange(of: shelves.map(\.id)) { _ in Task { await loadHero() } }
+            .task { await loadTMDb() }
         }
     }
 
-    private func loadHero() async {
-        guard let first = shelves.first else {
-            heroItems = []
-            return
-        }
-        let metas = (try? await StremioAPI.fetchCatalog(base: first.base, type: first.catalog.type, catalogId: first.catalog.id)) ?? []
-        heroItems = metas.prefix(5).map { SelectedItem(base: first.base, preview: $0) }
+    private func loadTMDb() async {
+        guard !loadedTMDb else { return }
+        loadedTMDb = true
+        async let t = TMDbAPI.fetchTrending()
+        async let pm = TMDbAPI.popularMovies()
+        async let ps = TMDbAPI.popularSeries()
+        async let tm = TMDbAPI.topRatedMovies()
+        async let ts = TMDbAPI.topRatedSeries()
+        trending = await t
+        popularMovies = await pm
+        popularSeries = await ps
+        topRatedMovies = await tm
+        topRatedSeries = await ts
     }
 
     private func playFirstStream(for item: SelectedItem) {
         Task {
-            let streams = (try? await StremioAPI.fetchStreams(base: item.base, type: item.preview.type, id: item.preview.id)) ?? []
-            guard let playableStream = streams.first(where: { $0.isPlayable }),
-                  let urlString = playableStream.url,
-                  let url = URL(string: urlString) else {
+            guard let url = await AddonManager.firstPlayableStream(
+                addons: addonManager.addons,
+                type: item.preview.type,
+                id: item.preview.id
+            ) else {
                 heroError = "No direct playable stream was found for this title from your installed addons."
                 return
             }
@@ -102,19 +126,21 @@ struct HomeView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "puzzlepiece.extension")
+            Image(systemName: TMDbSecrets.apiKey.isEmpty ? "key.slash" : "puzzlepiece.extension")
                 .font(.system(size: 44))
                 .foregroundColor(.gray)
-            Text("No addons yet")
+            Text(TMDbSecrets.apiKey.isEmpty ? "No TMDb API key configured" : "No addons yet")
                 .font(.headline)
                 .foregroundColor(.white)
-            Text("Add a Stremio addon manifest URL in the Addons tab to get started.")
+            Text(TMDbSecrets.apiKey.isEmpty
+                 ? "The home screen catalog needs a TMDb API key to populate. Add addon(s) in the Addons tab to browse and play their own catalogs in the meantime."
+                 : "Add a Stremio addon manifest URL in the Addons tab so titles have somewhere to play from.")
                 .font(.subheadline)
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
         }
-        .padding(.top, 100)
+        .padding(.top, 60)
         .frame(maxWidth: .infinity)
     }
 }

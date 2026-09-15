@@ -7,7 +7,7 @@ struct SearchView: View {
     @State private var selection: SelectedItem?
     @State private var searching = false
 
-    private let columns = [GridItem(.adaptive(minimum: 130), spacing: 16)]
+    private let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
 
     var body: some View {
         NavigationStack {
@@ -15,7 +15,7 @@ struct SearchView: View {
                 if searching {
                     ProgressView().padding(.top, 60).tint(.white)
                 } else if results.isEmpty {
-                    Text(query.isEmpty ? "Search across your installed addons." : "No results.")
+                    Text(query.isEmpty ? "Search movies, TV shows, and your installed addons." : "No results.")
                         .foregroundColor(.gray)
                         .padding(.top, 60)
                 } else {
@@ -32,12 +32,12 @@ struct SearchView: View {
                     .padding()
                 }
             }
-            .background(Color.black.ignoresSafeArea())
+            .background(AppBackground())
             .navigationTitle("Search")
             .searchable(text: $query)
             .onSubmit(of: .search) { Task { await performSearch() } }
             .navigationDestination(item: $selection) { sel in
-                DetailView(base: sel.base, preview: sel.preview)
+                DetailView(preview: sel.preview)
             }
         }
     }
@@ -51,15 +51,26 @@ struct SearchView: View {
         searching = true
         defer { searching = false }
 
-        var aggregated: [SelectedItem] = []
+        async let tmdbResults = TMDbAPI.search(query: trimmed)
+
+        var addonResults: [MetaPreview] = []
         for addon in addonManager.addons {
             let base = StremioAPI.base(from: addon.manifestURL)
             for catalog in addon.manifest.catalogs ?? [] {
                 if let metas = try? await StremioAPI.fetchCatalog(base: base, type: catalog.type, catalogId: catalog.id, search: trimmed) {
-                    aggregated.append(contentsOf: metas.map { SelectedItem(base: base, preview: $0) })
+                    addonResults.append(contentsOf: metas)
                 }
             }
         }
-        results = aggregated
+
+        var seen = Set<String>()
+        var combined: [SelectedItem] = []
+        for preview in (await tmdbResults) + addonResults {
+            let key = preview.type + ":" + preview.id
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            combined.append(SelectedItem(preview: preview))
+        }
+        results = combined
     }
 }

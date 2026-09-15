@@ -18,8 +18,11 @@ struct MetaDetail: Codable, Hashable {
     let description: String?
 }
 
+/// A title selected for the detail screen. Streams are resolved by
+/// querying every installed addon for `preview.id`/`preview.type` (the
+/// standard Stremio convention), regardless of which source (TMDb or an
+/// addon's own catalog) the preview came from.
 struct SelectedItem: Identifiable, Hashable {
-    let base: URL
     let preview: MetaPreview
-    var id: String { base.absoluteString + "|" + preview.id }
+    var id: String { preview.type + ":" + preview.id }
 }

@@ -20,7 +20,7 @@ struct ShelfRowView: View {
                 HStack(spacing: 16) {
                     ForEach(items) { item in
                         Button {
-                            onSelect(SelectedItem(base: shelfBase, preview: item))
+                            onSelect(SelectedItem(preview: item))
                         } label: {
                             PosterCardView(item: item)
                         }
